@@ -1,0 +1,66 @@
+// GET: /api/games/:id => fetch single game
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    // read id from url params
+    const { id } = await params;
+
+    // call get with id on server api
+    const res: Response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/games/${id}`);
+
+    // error handle
+    if (!res.ok) throw new Error('Failed to fetch game');
+
+    // return game in json 
+    return Response.json(await res.json());
+}
+
+// DELETE: /api/games/:id => delete selected game
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    // read id from url params
+    const { id } = await params;
+
+    // get cookie w/jwt
+    const cookieHeader: string = req.headers.get('cookie') || '';
+
+    // call delete with id on server api, pass cookie w/jwt for auth
+    const res: Response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/games/${id}`,
+        { 
+            method: 'DELETE',
+            headers: {
+                'Cookie': cookieHeader
+            }          
+        }
+    );
+
+    // error handle
+    if (!res.ok) throw new Error('Failed to delete game');
+
+    return new Response(null, { status: 204 });
+}
+
+// PUT: /api/games/:id => update selected game
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    // read id from url params
+    const { id } = await params;
+
+    // get request body
+    const body = await req.json();
+
+    // get cookie w/jwt
+    const cookieHeader: string = req.headers.get('cookie') || '';
+
+    // call put with id on server api
+    const res: Response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/games/${id}`, { 
+        method: 'PUT',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader
+        },
+        body: JSON.stringify(body)
+    });
+
+    console.log(`res: ${res}`);
+    // error handle
+    if (!res.ok) throw new Error('Failed to update game');
+
+    return new Response(null, { status: 204 });
+}
